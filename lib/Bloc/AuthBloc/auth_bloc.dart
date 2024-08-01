@@ -8,7 +8,7 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final Repository repository;
+  final AuthService repository;
   AuthBloc(this.repository) : super(AuthInitial()) {
 
     on<LoginEvent>((event, emit) async{
@@ -44,7 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ));
 
         if(res>0){
-          Users usr = await repository.getLoggedIn(event.users.username);
+          // Users usr = await repository.getLoggedIn(event.users.username);
           emit(SuccessRegister());
           // emit(Authenticated(usr));
         }else if (res == 0){

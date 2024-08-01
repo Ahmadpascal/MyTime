@@ -13,13 +13,13 @@ class MyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       // margin: const EdgeInsets.symmetric(vertical: 8),
-      width: 120,
+      width: 125,
       height: 60,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             backgroundColor: primaryClr),
         onPressed: onPressed,
         child: Text(

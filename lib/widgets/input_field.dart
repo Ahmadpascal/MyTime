@@ -4,20 +4,22 @@ import 'package:mytime/widgets/theme.dart';
 class MyInputField extends StatelessWidget {
   final String hint;
   final String title;
-  // final TextEditingController controller;
+  final TextEditingController? controller;
+  final FormFieldValidator? validator;
   final Widget? widget;
   const MyInputField(
       {super.key,
       required this.title,
       required this.hint,
-      // required this.controller,
-      this.widget
+      this.controller,
+      this.widget,
+      this.validator
       });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 16),
+      margin: const EdgeInsets.only(top: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,8 +44,9 @@ class MyInputField extends StatelessWidget {
                   child: TextFormField(
                     readOnly: widget==null?false:true,
                     autofocus: false,
-                    // controller: controller,
+                    controller: controller,
                     // cursorColor: ,
+                    validator: validator, 
                     style: subTitleStyle,
                     decoration: InputDecoration(
                       hintText: hint,

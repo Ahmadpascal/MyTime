@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mytime/Models/task.dart';
+import 'package:mytime/controllers/task_controllers.dart';
 import 'package:mytime/widgets/input_field.dart';
+import 'package:mytime/widgets/mybutton.dart';
 import 'package:mytime/widgets/theme.dart';
 
 class AddTaskPage extends StatefulWidget {
@@ -11,6 +15,9 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
+  final TaskControllers taskControllers = Get.put(TaskControllers());
+  final title = TextEditingController();
+  final note = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   String _startTime = DateFormat("hh:mm a").format(DateTime.now()).toString();
   String _endTime = "09.30 PM";
@@ -19,6 +26,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   String selectedRepeat = "None";
   List<String> repeatList = ["None", "Daily", "Weekly", "Monthly"];
+
+  int selectedColor = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,18 +42,19 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 "Add Task",
                 style: headingStyle,
               ),
-              const MyInputField(
+              MyInputField(
                 title: "Title",
                 hint: "Enter title here",
-                // controller: title
-              ),
-              const MyInputField(
-                title: "Note",
-                hint: "Enter note here",
-                // controller: title
+                controller: title
               ),
               MyInputField(
                 title: "Note",
+                hint: "Enter note here",
+                controller: note
+                // controller: title
+              ),
+              MyInputField(
+                title: "Date",
                 hint: DateFormat.yMd().format(_selectedDate),
                 widget: IconButton(
                     onPressed: () {
@@ -58,7 +68,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 children: [
                   Expanded(
                       child: MyInputField(
-                    title: "Start Date",
+                    title: "Start Time",
                     hint: _startTime,
                     widget: IconButton(
                         onPressed: () {
@@ -118,10 +128,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   elevation: 4,
                   style: subTitleStyle,
                   underline: Container(width: 0),
-                  items: repeatList.map<DropdownMenuItem<String>>((String? value) {
+                  items:
+                      repeatList.map<DropdownMenuItem<String>>((String? value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value!, style: const TextStyle(color: Colors.grey)),
+                      child: Text(value!,
+                          style: const TextStyle(color: Colors.grey)),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
@@ -130,11 +142,96 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     });
                   },
                 ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  colorPallete(),
+                  MyButton(
+                    label: "Create Task", 
+                    onPressed: () {
+                      validateDate();
+                    }
+                  )
+                ],
               )
             ],
           ),
         ),
       ),
+    );
+  }
+
+  validateDate() {
+    if (title.text.isNotEmpty&&note.text.isNotEmpty) {
+      addTaskToDb();
+      Get.back();
+    } else if(title.text.isEmpty||note.text.isEmpty){
+      Get.snackbar(
+        "Required!", "Semua bidang wajib diisi",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        icon: const Icon(Icons.warning_amber_rounded)
+      );
+    }
+  }
+
+  addTaskToDb() async {
+    await taskControllers.addTask(
+      task: Task(
+        note: title.text,
+        title: title.text,
+        date: DateFormat.yMd().format(_selectedDate),
+        starTime: _startTime,
+        endTime: _endTime,
+        remind: selectedRemind,
+        repeat: selectedRepeat,
+        color: selectedColor,
+        isCompleted: 0
+      )
+    );
+    print("my id is:");
+  }
+
+  colorPallete() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Color", style: titleStyle),
+        const SizedBox(height: 8.0),
+        Wrap(
+          children: List<Widget>.generate(3, (int index) {
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedColor = index;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 6.0),
+                child: CircleAvatar(
+                  radius: 14,
+                  backgroundColor: index == 0
+                      ? primaryClr
+                      : index == 1
+                          ? pinkClr
+                          : yellowClr,
+                  child: selectedColor == index
+                      ? const Icon(
+                          Icons.done,
+                          color: Colors.white,
+                          size: 16,
+                        )
+                      : Container(),
+                ),
+              ),
+            );
+          }),
+        )
+      ],
     );
   }
 
